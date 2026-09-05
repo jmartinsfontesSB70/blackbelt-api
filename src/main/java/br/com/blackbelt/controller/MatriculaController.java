@@ -17,6 +17,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.net.URI;
+import java.util.List;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/v1/matriculas")
@@ -90,6 +92,19 @@ public class MatriculaController {
                 request.getTurmaId());
 
         return matriculaMapper.toResponse(matricula);
+    }
+
+    @GetMapping("/turma/{turmaId}/ativas")
+    @PreAuthorize("hasAuthority('MATRICULA_LISTAR')")
+    public List<MatriculaResponse> listarAtivasPorTurma(
+            @PathVariable Long turmaId,
+            @RequestParam LocalDate data) {
+
+        return matriculaService
+                .listarAtivasPorTurma(turmaId, data)
+                .stream()
+                .map(matriculaMapper::toResponse)
+                .toList();
     }
 
     @GetMapping("/{id}")

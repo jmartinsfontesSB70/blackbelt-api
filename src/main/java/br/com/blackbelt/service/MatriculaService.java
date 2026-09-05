@@ -11,6 +11,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Service
 public class MatriculaService {
 
@@ -40,6 +43,28 @@ public class MatriculaService {
                 .orElseThrow(() ->
                         new EntidadeNaoEncontradaException(
                                 "Matricula de código " + id + " não encontrada."));
+    }
+
+    public List<Matricula> listarAtivasPorTurma(
+            Long turmaId,
+            LocalDate data) {
+
+        if (turmaId == null || turmaId <= 0) {
+            throw new EntidadeConflitoException(
+                    "A turma da chamada deve ser informada."
+            );
+        }
+
+        if (data == null) {
+            throw new EntidadeConflitoException(
+                    "A data da chamada deve ser informada."
+            );
+        }
+
+        return matriculaRepository
+                .findByTurmaIdAndAtivaTrueAndDataMatriculaLessThanEqual(
+                        turmaId,
+                        data);
     }
 
     public Matricula cadastrar(Matricula matricula,

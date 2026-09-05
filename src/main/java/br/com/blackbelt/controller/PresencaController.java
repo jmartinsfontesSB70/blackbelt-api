@@ -16,7 +16,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import br.com.blackbelt.api.dto.PresencaChamadaRequest;
+
 import java.net.URI;
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/presencas")
@@ -72,6 +76,35 @@ public class PresencaController {
                 .toUri();
 
         return ResponseEntity.created(uri).body(response);
+    }
+
+    @PostMapping("/chamada")
+    @PreAuthorize("hasAuthority('PRESENCA_CRIAR')")
+    public List<PresencaResponse> registrarChamada(
+            @Valid @RequestBody PresencaChamadaRequest request) {
+
+        List<Presenca> presencas =
+                presencaService.registrarChamada(request);
+
+        return presencas.stream()
+                .map(presencaMapper::toResponse)
+                .toList();
+    }
+
+    @GetMapping("/chamada")
+    @PreAuthorize("hasAuthority('PRESENCA_LISTAR')")
+    public List<PresencaResponse> listarPorTurmaEData(
+            @RequestParam Long turmaId,
+            @RequestParam LocalDate data) {
+
+        List<Presenca> presencas =
+                presencaService.listarPorTurmaEData(
+                        turmaId,
+                        data);
+
+        return presencas.stream()
+                .map(presencaMapper::toResponse)
+                .toList();
     }
 
     @PutMapping("/{id}")

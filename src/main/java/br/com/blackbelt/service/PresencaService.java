@@ -11,6 +11,15 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
+import br.com.blackbelt.api.dto.PresencaChamadaRequest;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 @Service
 public class PresencaService {
 
@@ -57,6 +66,96 @@ public class PresencaService {
 
         return presencaRepository.save(presenca);
 
+    }
+
+    public List<Presenca> listarPorTurmaEData(
+            Long turmaId,
+            LocalDate data) {
+
+        if (turmaId == null || turmaId <= 0) {
+            throw new EntidadeConflitoException(
+                    "A turma da chamada deve ser informada."
+            );
+        }
+
+        validarDataPresenca(data);
+
+        return presencaRepository
+                .findByMatriculaTurmaIdAndData(turmaId, data);
+    }
+
+    @Transactional
+    public List<Presenca> registrarChamada(PresencaChamadaRequest request) {
+
+        if (request.getTurmaId() == null || request.getTurmaId() <= 0) {
+            throw new EntidadeConflitoException(
+                    "A turma da chamada deve ser informada."
+            );
+        }
+
+        validarDataPresenca(request.getData());
+
+        List<Matricula> matriculas = matriculaService.listarAtivasPorTurma(
+                request.getTurmaId(),
+                request.getData());
+
+        Set<Long> matriculaIdsPresentes =
+                request.getMatriculaIdsPresentes() == null
+                        ? Set.of()
+                        : Set.copyOf(request.getMatriculaIdsPresentes());
+
+        Map<Long, Matricula> matriculasPorId =
+                matriculas.stream()
+                        .collect(Collectors.toMap(
+                                Matricula::getId,
+                                Function.identity()
+                        ));
+
+        for (Long matriculaId : matriculaIdsPresentes) {
+
+            if (!matriculasPorId.containsKey(matriculaId)) {
+                throw new EntidadeConflitoException(
+                        "A matrícula " + matriculaId +
+                                " não pertence a uma matrícula ativa da turma informada."
+                );
+            }
+        }
+
+        List<Presenca> presencasExistentes =
+                presencaRepository.findByMatriculaTurmaIdAndData(
+                        request.getTurmaId(),
+                        request.getData());
+
+        Map<Long, Presenca> presencasPorMatricula =
+                presencasExistentes.stream()
+                        .collect(Collectors.toMap(
+                                presenca -> presenca.getMatricula().getId(),
+                                Function.identity()
+                        ));
+
+        List<Presenca> presencas = matriculas.stream()
+                .map(matricula -> {
+
+                    boolean presente =
+                            matriculaIdsPresentes.contains(matricula.getId());
+
+                    Presenca presenca =
+                            presencasPorMatricula.get(matricula.getId());
+
+                    if (presenca == null) {
+
+                        presenca = new Presenca();
+                        presenca.setMatricula(matricula);
+                        presenca.setData(request.getData());
+                    }
+
+                    presenca.setPresente(presente);
+
+                    return presenca;
+                })
+                .toList();
+
+        return presencaRepository.saveAll(presencas);
     }
 
     public Presenca atualizar(Long id,
