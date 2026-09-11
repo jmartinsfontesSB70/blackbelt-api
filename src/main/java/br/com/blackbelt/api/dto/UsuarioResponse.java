@@ -4,6 +4,7 @@ public class UsuarioResponse {
 
     private Long id;
     private String username;
+    private String email;
     private Boolean ativo;
     private Long perfilId;
     private String perfilNome;
@@ -14,6 +15,14 @@ public class UsuarioResponse {
 
     public String getUsername() {
         return username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Boolean getAtivo() {

@@ -1,9 +1,11 @@
 package br.com.blackbelt.api.dto;
 
-public class LoginRequest {
+import jakarta.validation.constraints.NotBlank;
 
+public class RecuperacaoSenhaRequest {
+
+    @NotBlank
     private String identificador;
-    private String password;
 
     public String getIdentificador() {
         return identificador;
@@ -11,13 +13,5 @@ public class LoginRequest {
 
     public void setIdentificador(String identificador) {
         this.identificador = identificador;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 }

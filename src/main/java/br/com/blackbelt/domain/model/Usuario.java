@@ -13,6 +13,9 @@ public class Usuario {
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
+    @Column(unique = true, length = 150)
+    private String email;
+
     @Column(nullable = false)
     private String password;
 
@@ -33,6 +36,14 @@ public class Usuario {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPassword() {

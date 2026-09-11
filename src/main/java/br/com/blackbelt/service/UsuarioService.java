@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class UsuarioService {
@@ -43,6 +44,15 @@ public class UsuarioService {
             String password,
             Long perfilId) {
 
+        String email = usuario.getEmail().trim().toLowerCase(Locale.ROOT);
+        usuario.setEmail(email);
+
+        if (usuarioRepository.existsByEmail(usuario.getEmail())) {
+            throw new EntidadeConflitoException(
+                    "Já existe um usuário cadastrado com este e-mail."
+            );
+        }
+
         Perfil perfil = buscarPerfil(perfilId);
 
         usuario.setPassword(
@@ -61,6 +71,17 @@ public class UsuarioService {
             String password,
             Long perfilId) {
 
+        String email = dados.getEmail().trim().toLowerCase(Locale.ROOT);
+
+        if (usuarioRepository.existsByEmailAndIdNot(
+                email,
+                id)) {
+
+            throw new EntidadeConflitoException(
+                    "Já existe outro usuário cadastrado com este e-mail."
+            );
+        }
+
         Usuario usuario = buscarUsuario(id);
 
         protegerAdmin(usuario);
@@ -68,6 +89,7 @@ public class UsuarioService {
         Perfil perfil = buscarPerfil(perfilId);
 
         usuario.setUsername(dados.getUsername());
+        usuario.setEmail(email);
         usuario.setAtivo(dados.getAtivo());
         usuario.setPerfil(perfil);
 

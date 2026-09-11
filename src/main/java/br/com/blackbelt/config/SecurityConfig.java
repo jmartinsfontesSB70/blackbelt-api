@@ -39,7 +39,12 @@ public class SecurityConfig {
         http
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/error", "/api/v1/login").permitAll()
+                        .requestMatchers(
+                                "/error",
+                                "/api/v1/login",
+                                "/api/v1/recuperacao-senha",
+                                "/api/v1/recuperacao-senha/redefinir"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

@@ -22,10 +22,11 @@ public class UsuarioDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username)
+    public UserDetails loadUserByUsername(String identificador)
             throws UsernameNotFoundException {
 
-        Usuario usuario = usuarioRepository.findByUsername(username)
+        Usuario usuario = usuarioRepository
+                .findByUsernameOrEmail(identificador, identificador)
                 .orElseThrow(() ->
                         new UsernameNotFoundException(
                                 "Usuário não encontrado."
@@ -33,7 +34,8 @@ public class UsuarioDetailsService implements UserDetailsService {
 
         var authorities = usuario.getPerfil().getPermissoes()
                 .stream()
-                .map(permissao -> new SimpleGrantedAuthority(permissao.getNome()))
+                .map(permissao ->
+                        new SimpleGrantedAuthority(permissao.getNome()))
                 .collect(Collectors.toSet());
 
         return User.withUsername(usuario.getUsername())
@@ -42,6 +44,5 @@ public class UsuarioDetailsService implements UserDetailsService {
                 .roles(usuario.getPerfil().getNome())
                 .authorities(authorities)
                 .build();
-
     }
 }
