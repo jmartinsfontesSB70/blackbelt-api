@@ -38,19 +38,40 @@ public class MatriculaController {
     @PreAuthorize("hasAuthority('MATRICULA_LISTAR')")
     public Page<MatriculaResponse> listar(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String pesquisa,
+            @RequestParam(defaultValue = "dataMatricula") String sort,
+            @RequestParam(defaultValue = "desc") String direction) {
+
+        String campoOrdenacao = "dataMatricula";
+
+        if ("id".equalsIgnoreCase(sort)) {
+            campoOrdenacao = "id";
+        }
+
+        Sort.Direction direcao = "asc".equalsIgnoreCase(direction)
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+
+        Sort sortOrdenacao = Sort.by(
+                direcao,
+                campoOrdenacao
+        );
+
+        if ("dataMatricula".equalsIgnoreCase(campoOrdenacao)) {
+            sortOrdenacao = sortOrdenacao.and(
+                    Sort.by(Sort.Direction.DESC, "id")
+            );
+        }
 
         Pageable pageable = PageRequest.of(
                 page,
                 size,
-                Sort.by(
-                        Sort.Order.desc("dataMatricula"),
-                        Sort.Order.desc("id")
-                )
+                sortOrdenacao
         );
 
         Page<Matricula> matriculas =
-                matriculaService.listar(pageable);
+                matriculaService.listar(pageable, pesquisa);
 
         return matriculas.map(matriculaMapper::toResponse);
     }

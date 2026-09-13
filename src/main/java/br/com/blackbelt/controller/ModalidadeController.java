@@ -35,17 +35,29 @@ public class ModalidadeController {
     @PreAuthorize("hasAuthority('MODALIDADE_LISTAR')")
     public Page<ModalidadeResponse> listar(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String pesquisa,
+            @RequestParam(defaultValue = "id") String sort,
+            @RequestParam(defaultValue = "desc") String direction) {
+
+        String campoOrdenacao = "id";
+
+        if ("nome".equalsIgnoreCase(sort)) {
+            campoOrdenacao = "nome";
+        }
+
+        Sort.Direction direcao = "asc".equalsIgnoreCase(direction)
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
 
         Pageable pageable = PageRequest.of(
                 page,
                 size,
-                Sort.by(
-                        Sort.Order.desc("id")
-                )
+                Sort.by(direcao, campoOrdenacao)
         );
 
-        Page<Modalidade> modalidades = modalidadeService.listar(pageable);
+        Page<Modalidade> modalidades =
+                modalidadeService.listar(pageable, pesquisa);
 
         return modalidades.map(modalidadeMapper::toResponse);
     }

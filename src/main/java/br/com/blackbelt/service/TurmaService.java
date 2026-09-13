@@ -31,8 +31,16 @@ public class TurmaService {
         this.matriculaRepository = matriculaRepository;
     }
 
-    public Page<Turma> listar(Pageable pageable) {
-        return turmaRepository.findAll(pageable);
+    public Page<Turma> listar(Pageable pageable, String pesquisa) {
+
+        if (pesquisa == null || pesquisa.isBlank()) {
+            return turmaRepository.findAll(pageable);
+        }
+
+        return turmaRepository.findByNomeContainingIgnoreCase(
+                pesquisa.trim(),
+                pageable
+        );
     }
 
     public Turma buscarPorId(Long id) {

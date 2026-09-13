@@ -9,6 +9,8 @@ import br.com.blackbelt.exception.EntidadeNaoEncontradaException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Locale;
@@ -30,8 +32,21 @@ public class UsuarioService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public List<Usuario> listar() {
-        return usuarioRepository.findAll();
+    public Page<Usuario> listar(Pageable pageable, String pesquisa) {
+
+        if (pesquisa == null || pesquisa.isBlank()) {
+            return usuarioRepository.findAll(pageable);
+        }
+
+        String texto = pesquisa.trim();
+
+        return usuarioRepository
+                .findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPerfilNomeContainingIgnoreCase(
+                        texto,
+                        texto,
+                        texto,
+                        pageable
+                );
     }
 
     public Usuario buscarPorId(Long id) {

@@ -23,8 +23,18 @@ public class ProfessorService {
         this.turmaRepository = turmaRepository;
     }
 
-    public Page<Professor> listar(Pageable pageable) {
-        return professorRepository.findAll(pageable);
+    public Page<Professor> listar(
+            Pageable pageable,
+            String pesquisa) {
+
+        if (pesquisa == null || pesquisa.isBlank()) {
+            return professorRepository.findAll(pageable);
+        }
+
+        return professorRepository.findByNomeContainingIgnoreCase(
+                pesquisa.trim(),
+                pageable
+        );
     }
 
     public Professor buscarPorId(Long id) {

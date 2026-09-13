@@ -32,8 +32,19 @@ public class PresencaService {
         this.matriculaService = matriculaService;
     }
 
-    public Page<Presenca> listar(Pageable pageable) {
-        return presencaRepository.findAll(pageable);
+    public Page<Presenca> listar(Pageable pageable, String pesquisa) {
+
+        if (pesquisa == null || pesquisa.isBlank()) {
+            return presencaRepository.findAll(pageable);
+        }
+
+        String texto = pesquisa.trim();
+
+        return presencaRepository
+                .findByMatriculaAlunoNomeContainingIgnoreCaseOrMatriculaTurmaNomeContainingIgnoreCase(
+                        texto,
+                        texto,
+                        pageable);
     }
 
     public Presenca buscarPorId(Long id) {

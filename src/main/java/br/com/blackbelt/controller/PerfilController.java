@@ -10,6 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import java.net.URI;
 import java.util.List;
 
@@ -30,12 +35,29 @@ public class PerfilController {
 
     @PreAuthorize("hasAuthority('PERFIL_LISTAR')")
     @GetMapping
-    public List<PerfilResponse> listar() {
+    public Page<PerfilResponse> listar(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "nome") String sort,
+            @RequestParam(defaultValue = "desc") String direction) {
 
-        return perfilService.listar()
-                .stream()
-                .map(perfilMapper::toResponse)
-                .toList();
+        String campoOrdenacao = "nome";
+
+        Sort.Direction direcao =
+                "asc".equalsIgnoreCase(direction)
+                        ? Sort.Direction.ASC
+                        : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(direcao, campoOrdenacao)
+        );
+
+        Page<Perfil> perfis =
+                perfilService.listar(pageable);
+
+        return perfis.map(perfilMapper::toResponse);
     }
 
     @PreAuthorize("hasAuthority('PERFIL_LISTAR')")

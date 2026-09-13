@@ -36,18 +36,29 @@ public class ProfessorController {
     @PreAuthorize("hasAuthority('PROFESSOR_LISTAR')")
     public Page<ProfessorResponse> listar(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String pesquisa,
+            @RequestParam(defaultValue = "id") String sort,
+            @RequestParam(defaultValue = "desc") String direction) {
+
+        String campoOrdenacao = "id";
+
+        if ("nome".equalsIgnoreCase(sort)) {
+            campoOrdenacao = "nome";
+        }
+
+        Sort.Direction direcao = "asc".equalsIgnoreCase(direction)
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
 
         Pageable pageable = PageRequest.of(
                 page,
                 size,
-                Sort.by(
-                        Sort.Order.desc("id")
-                )
+                Sort.by(direcao, campoOrdenacao)
         );
 
         Page<Professor> professores =
-                professorService.listar(pageable);
+                professorService.listar(pageable, pesquisa);
 
         return professores.map(professorMapper::toResponse);
     }

@@ -23,8 +23,18 @@ public class AlunoService {
         this.matriculaRepository = matriculaRepository;
     }
 
-    public Page<Aluno> listar(Pageable pageable) {
-        return alunoRepository.findAll(pageable);
+    public Page<Aluno> listar(
+            Pageable pageable,
+            String pesquisa) {
+
+        if (pesquisa == null || pesquisa.isBlank()) {
+            return alunoRepository.findAll(pageable);
+        }
+
+        return alunoRepository.findByNomeContainingIgnoreCase(
+                pesquisa.trim(),
+                pageable
+        );
     }
 
     public Aluno cadastrar(Aluno aluno) {

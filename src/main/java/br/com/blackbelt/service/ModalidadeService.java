@@ -23,8 +23,16 @@ public class ModalidadeService {
         this.turmaRepository = turmaRepository;
     }
 
-    public Page<Modalidade> listar(Pageable pageable) {
-        return modalidadeRepository.findAll(pageable);
+    public Page<Modalidade> listar(Pageable pageable, String pesquisa) {
+
+        if (pesquisa == null || pesquisa.isBlank()) {
+            return modalidadeRepository.findAll(pageable);
+        }
+
+        return modalidadeRepository.findByNomeContainingIgnoreCase(
+                pesquisa.trim(),
+                pageable
+        );
     }
 
     public Modalidade buscarPorId(Long id) {

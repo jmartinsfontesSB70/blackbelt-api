@@ -1,6 +1,8 @@
 package br.com.blackbelt.domain.repository;
 
 import br.com.blackbelt.domain.model.Turma;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TurmaRepository extends JpaRepository<Turma, Long> {
@@ -8,4 +10,9 @@ public interface TurmaRepository extends JpaRepository<Turma, Long> {
     boolean existsByModalidadeId(Long modalidadeId);
 
     boolean existsByProfessorId(Long professorId);
+
+    Page<Turma> findByNomeContainingIgnoreCase(
+            String nome,
+            Pageable pageable
+    );
 }

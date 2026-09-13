@@ -1,6 +1,8 @@
 package br.com.blackbelt.domain.repository;
 
 import br.com.blackbelt.domain.model.Usuario;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -21,4 +23,11 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     boolean existsByEmailAndIdNot(String email, Long id);
 
     boolean existsByPerfilId(Long perfilId);
+
+    Page<Usuario>
+    findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrPerfilNomeContainingIgnoreCase(
+            String username,
+            String email,
+            String perfilNome,
+            Pageable pageable);
 }

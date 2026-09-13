@@ -10,6 +10,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import java.net.URI;
 import java.util.List;
 
@@ -30,12 +35,36 @@ public class UsuarioController {
 
     @PreAuthorize("hasAuthority('USUARIO_LISTAR')")
     @GetMapping
-    public List<UsuarioResponse> listar() {
+    public Page<UsuarioResponse> listar(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String pesquisa,
+            @RequestParam(defaultValue = "id") String sort,
+            @RequestParam(defaultValue = "desc") String direction) {
 
-        return usuarioService.listar()
-                .stream()
-                .map(usuarioMapper::toResponse)
-                .toList();
+        String campoOrdenacao = "id";
+
+        if ("username".equalsIgnoreCase(sort)) {
+            campoOrdenacao = "username";
+        } else if ("email".equalsIgnoreCase(sort)) {
+            campoOrdenacao = "email";
+        }
+
+        Sort.Direction direcao =
+                "asc".equalsIgnoreCase(direction)
+                        ? Sort.Direction.ASC
+                        : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(direcao, campoOrdenacao)
+        );
+
+        Page<Usuario> usuarios =
+                usuarioService.listar(pageable, pesquisa);
+
+        return usuarios.map(usuarioMapper::toResponse);
     }
 
     @PreAuthorize("hasAuthority('USUARIO_LISTAR')")

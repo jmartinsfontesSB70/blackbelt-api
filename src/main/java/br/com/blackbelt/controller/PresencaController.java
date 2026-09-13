@@ -40,19 +40,40 @@ public class PresencaController {
     @PreAuthorize("hasAuthority('PRESENCA_LISTAR')")
     public Page<PresencaResponse> listar(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String pesquisa,
+            @RequestParam(defaultValue = "data") String sort,
+            @RequestParam(defaultValue = "desc") String direction) {
+
+        String campoOrdenacao = "data";
+
+        if ("id".equalsIgnoreCase(sort)) {
+            campoOrdenacao = "id";
+        }
+
+        Sort.Direction direcao = "asc".equalsIgnoreCase(direction)
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+
+        Sort sortOrdenacao = Sort.by(
+                direcao,
+                campoOrdenacao
+        );
+
+        if ("data".equalsIgnoreCase(campoOrdenacao)) {
+            sortOrdenacao = sortOrdenacao.and(
+                    Sort.by(Sort.Direction.DESC, "id")
+            );
+        }
 
         Pageable pageable = PageRequest.of(
                 page,
                 size,
-                Sort.by(
-                        Sort.Order.desc("data"),
-                        Sort.Order.desc("id")
-                )
+                sortOrdenacao
         );
 
         Page<Presenca> presencas =
-                presencaService.listar(pageable);
+                presencaService.listar(pageable, pesquisa);
 
         return presencas.map(presencaMapper::toResponse);
     }
