@@ -35,6 +35,17 @@ public class MatriculaMapper {
 
             response.setTurmaId(matricula.getTurma().getId());
             response.setTurmaNome(matricula.getTurma().getNome());
+
+            if (matricula.getTurma().getModalidade() != null) {
+
+                response.setModalidadeId(
+                        matricula.getTurma().getModalidade().getId()
+                );
+
+                response.setModalidadeNome(
+                        matricula.getTurma().getModalidade().getNome()
+                );
+            }
         }
 
         response.setAtiva(matricula.getAtiva());
@@ -42,5 +53,3 @@ public class MatriculaMapper {
         return response;
     }
 }
-
-

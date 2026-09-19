@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "turmas")
@@ -30,8 +32,12 @@ public class Turma {
     @JoinColumn(name = "professor_id")
     private Professor professor;
 
-    @NotBlank(message = "Os dias da semana são obrigatórios.")
-    private String diasSemana;
+    @OneToMany(
+            mappedBy = "turma",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<TurmaDia> dias = new ArrayList<>();
 
     @NotNull(message = "Horário inicial é obrigatório.")
     private LocalTime horarioInicio;
@@ -81,12 +87,12 @@ public class Turma {
         this.professor = professor;
     }
 
-    public String getDiasSemana() {
-        return diasSemana;
+    public List<TurmaDia> getDias() {
+        return dias;
     }
 
-    public void setDiasSemana(String diasSemana) {
-        this.diasSemana = diasSemana;
+    public void setDias(List<TurmaDia> dias) {
+        this.dias = dias;
     }
 
     public LocalTime getHorarioInicio() {

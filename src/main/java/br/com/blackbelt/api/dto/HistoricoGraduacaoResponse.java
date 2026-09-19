@@ -2,21 +2,18 @@ package br.com.blackbelt.api.dto;
 
 import java.time.LocalDate;
 
-public class MatriculaResponse {
+public class HistoricoGraduacaoResponse {
 
     private Long id;
-
     private Long alunoId;
     private String alunoNome;
-
-    private Long turmaId;
-    private String turmaNome;
-
+    private Long graduacaoId;
+    private String graduacaoNome;
     private Long modalidadeId;
     private String modalidadeNome;
-
-    private LocalDate dataMatricula;
-    private Boolean ativa;
+    private Integer grau;
+    private LocalDate data;
+    private String observacao;
 
     public Long getId() {
         return id;
@@ -42,20 +39,20 @@ public class MatriculaResponse {
         this.alunoNome = alunoNome;
     }
 
-    public Long getTurmaId() {
-        return turmaId;
+    public Long getGraduacaoId() {
+        return graduacaoId;
     }
 
-    public void setTurmaId(Long turmaId) {
-        this.turmaId = turmaId;
+    public void setGraduacaoId(Long graduacaoId) {
+        this.graduacaoId = graduacaoId;
     }
 
-    public String getTurmaNome() {
-        return turmaNome;
+    public String getGraduacaoNome() {
+        return graduacaoNome;
     }
 
-    public void setTurmaNome(String turmaNome) {
-        this.turmaNome = turmaNome;
+    public void setGraduacaoNome(String graduacaoNome) {
+        this.graduacaoNome = graduacaoNome;
     }
 
     public Long getModalidadeId() {
@@ -74,19 +71,27 @@ public class MatriculaResponse {
         this.modalidadeNome = modalidadeNome;
     }
 
-    public LocalDate getDataMatricula() {
-        return dataMatricula;
+    public Integer getGrau() {
+        return grau;
     }
 
-    public void setDataMatricula(LocalDate dataMatricula) {
-        this.dataMatricula = dataMatricula;
+    public void setGrau(Integer grau) {
+        this.grau = grau;
     }
 
-    public Boolean getAtiva() {
-        return ativa;
+    public LocalDate getData() {
+        return data;
     }
 
-    public void setAtiva(Boolean ativa) {
-        this.ativa = ativa;
+    public void setData(LocalDate data) {
+        this.data = data;
+    }
+
+    public String getObservacao() {
+        return observacao;
+    }
+
+    public void setObservacao(String observacao) {
+        this.observacao = observacao;
     }
 }

@@ -78,9 +78,24 @@ public class MatriculaService {
                         data);
     }
 
+    public List<Matricula> listarAtivasPorAluno(Long alunoId) {
+
+        if (alunoId == null || alunoId <= 0) {
+            throw new EntidadeConflitoException(
+                    "O aluno deve ser informado."
+            );
+        }
+
+        alunoService.buscarPorId(alunoId);
+
+        return matriculaRepository
+                .findByAlunoIdAndAtivaTrueOrderByDataMatriculaDesc(
+                        alunoId);
+    }
+
     public Matricula cadastrar(Matricula matricula,
-                           Long alunoId,
-                           Long turmaId) {
+                               Long alunoId,
+                               Long turmaId) {
 
         if (alunoId == null || alunoId <= 0) {
             throw new EntidadeConflitoException(
@@ -113,7 +128,7 @@ public class MatriculaService {
     }
 
     public Matricula atualizar(Long id, Matricula matricula,
-                           Long alunoId, Long turmaId) {
+                               Long alunoId, Long turmaId) {
 
         Matricula matriculaAtual = buscarPorId(id);
 
@@ -216,4 +231,3 @@ public class MatriculaService {
         }
     }
 }
-

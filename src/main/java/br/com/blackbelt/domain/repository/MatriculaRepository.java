@@ -30,4 +30,7 @@ public interface MatriculaRepository extends JpaRepository<Matricula, Long> {
             String alunoNome,
             String turmaNome,
             Pageable pageable);
+
+    List<Matricula> findByAlunoIdAndAtivaTrueOrderByDataMatriculaDesc(
+            Long alunoId);
 }

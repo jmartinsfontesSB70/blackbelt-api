@@ -1,6 +1,9 @@
 package br.com.blackbelt.api.dto;
 
+import br.com.blackbelt.domain.model.DiaSemana;
+
 import java.time.LocalTime;
+import java.util.List;
 
 public class TurmaResponse {
 
@@ -13,7 +16,7 @@ public class TurmaResponse {
     private Long modalidadeId;
     private String modalidadeNome;
 
-    private String diasSemana;
+    private List<DiaSemana> diasSemana;
 
     private LocalTime horarioInicio;
     private LocalTime horarioFim;
@@ -70,11 +73,11 @@ public class TurmaResponse {
         this.modalidadeNome = modalidadeNome;
     }
 
-    public String getDiasSemana() {
+    public List<DiaSemana> getDiasSemana() {
         return diasSemana;
     }
 
-    public void setDiasSemana(String diasSemana) {
+    public void setDiasSemana(List<DiaSemana> diasSemana) {
         this.diasSemana = diasSemana;
     }
 

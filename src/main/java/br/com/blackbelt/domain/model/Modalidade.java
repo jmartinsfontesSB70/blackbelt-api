@@ -20,6 +20,17 @@ public class Modalidade {
     @NotNull(message = "Situação da modalidade é obrigatória.")
     private Boolean ativa;
 
+    @Column(name = "utiliza_grau", nullable = false)
+    private Boolean utilizaGrau;
+
+    public Boolean getUtilizaGrau() {
+        return utilizaGrau;
+    }
+
+    public void setUtilizaGrau(Boolean utilizaGrau) {
+        this.utilizaGrau = utilizaGrau;
+    }
+
     public Modalidade() {
     }
 

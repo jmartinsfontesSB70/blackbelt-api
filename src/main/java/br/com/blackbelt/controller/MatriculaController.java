@@ -27,8 +27,9 @@ public class MatriculaController {
     private final MatriculaService matriculaService;
     private final MatriculaMapper matriculaMapper;
 
-    public MatriculaController(MatriculaService matriculaService,
-                           MatriculaMapper matriculaMapper) {
+    public MatriculaController(
+            MatriculaService matriculaService,
+            MatriculaMapper matriculaMapper) {
 
         this.matriculaService = matriculaService;
         this.matriculaMapper = matriculaMapper;
@@ -78,7 +79,8 @@ public class MatriculaController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('MATRICULA_CRIAR')")
-    public ResponseEntity<MatriculaResponse> cadastrar(@Valid @RequestBody MatriculaRequest request) {
+    public ResponseEntity<MatriculaResponse> cadastrar(
+            @Valid @RequestBody MatriculaRequest request) {
 
         Matricula matricula = matriculaMapper.toEntity(request);
 
@@ -87,7 +89,8 @@ public class MatriculaController {
                 request.getAlunoId(),
                 request.getTurmaId());
 
-        MatriculaResponse response = matriculaMapper.toResponse(matricula);
+        MatriculaResponse response =
+                matriculaMapper.toResponse(matricula);
 
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -128,11 +131,24 @@ public class MatriculaController {
                 .toList();
     }
 
+    @GetMapping("/aluno/{alunoId}/ativas")
+    @PreAuthorize("hasAuthority('MATRICULA_LISTAR')")
+    public List<MatriculaResponse> listarAtivasPorAluno(
+            @PathVariable Long alunoId) {
+
+        return matriculaService
+                .listarAtivasPorAluno(alunoId)
+                .stream()
+                .map(matriculaMapper::toResponse)
+                .toList();
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('MATRICULA_LISTAR')")
     public MatriculaResponse buscarPorId(@PathVariable Long id) {
 
-        Matricula matricula = matriculaService.buscarPorId(id);
+        Matricula matricula =
+                matriculaService.buscarPorId(id);
 
         return matriculaMapper.toResponse(matricula);
     }
@@ -145,5 +161,4 @@ public class MatriculaController {
 
         return ResponseEntity.noContent().build();
     }
-
 }

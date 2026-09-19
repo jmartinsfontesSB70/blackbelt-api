@@ -1,11 +1,14 @@
 package br.com.blackbelt.api.dto;
 
+import br.com.blackbelt.domain.model.DiaSemana;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalTime;
+import java.util.List;
 
 public class TurmaRequest {
 
@@ -19,9 +22,8 @@ public class TurmaRequest {
     @NotNull(message = "O professor é obrigatório.")
     private Long professorId;
 
-    @NotBlank(message = "Os dias da semana são obrigatórios.")
-    @Size(max = 50, message = "Informe no máximo 50 caracteres.")
-    private String diasSemana;
+    @NotEmpty(message = "Selecione pelo menos um dia da semana.")
+    private List<DiaSemana> diasSemana;
 
     @NotNull(message = "Horário inicial é obrigatório.")
     private LocalTime horarioInicio;
@@ -60,11 +62,11 @@ public class TurmaRequest {
         this.professorId = professorId;
     }
 
-    public String getDiasSemana() {
+    public List<DiaSemana> getDiasSemana() {
         return diasSemana;
     }
 
-    public void setDiasSemana(String diasSemana) {
+    public void setDiasSemana(List<DiaSemana> diasSemana) {
         this.diasSemana = diasSemana;
     }
 
