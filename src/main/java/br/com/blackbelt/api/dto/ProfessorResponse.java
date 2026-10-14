@@ -14,6 +14,7 @@ public class ProfessorResponse {
     private LocalDate dataContratacao;
     private BigDecimal valorHoraAula;
     private Boolean ativo;
+    private Boolean possuiFoto;
     private EnderecoResponse endereco;
 
     public Long getId() {
@@ -86,6 +87,14 @@ public class ProfessorResponse {
 
     public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
+    }
+
+    public Boolean getPossuiFoto() {
+        return possuiFoto;
+    }
+
+    public void setPossuiFoto(Boolean possuiFoto) {
+        this.possuiFoto = possuiFoto;
     }
 
     public EnderecoResponse getEndereco() {

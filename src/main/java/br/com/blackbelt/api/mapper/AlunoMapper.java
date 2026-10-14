@@ -50,6 +50,7 @@ public class AlunoMapper {
         response.setTelefone(aluno.getTelefone());
         response.setEmail(aluno.getEmail());
         response.setAtivo(aluno.getAtivo());
+        response.setPossuiFoto(aluno.getFotoKey() != null);
 
         if (aluno.getEndereco() != null) {
 

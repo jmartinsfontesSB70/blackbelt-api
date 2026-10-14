@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "alunos")
 public class Aluno {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,6 +34,8 @@ public class Aluno {
 
     @NotNull(message = "Situação do aluno é obrigatória.")
     private Boolean ativo;
+
+    private String fotoKey;
 
     @Valid
     @OneToOne(cascade = CascadeType.ALL)
@@ -62,7 +65,9 @@ public class Aluno {
         return dataNascimento;
     }
 
-    public void setDataNascimento(LocalDate dataNascimento) { this.dataNascimento = dataNascimento; }
+    public void setDataNascimento(LocalDate dataNascimento) {
+        this.dataNascimento = dataNascimento;
+    }
 
     public String getCpf() {
         return cpf;
@@ -94,6 +99,14 @@ public class Aluno {
 
     public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
+    }
+
+    public String getFotoKey() {
+        return fotoKey;
+    }
+
+    public void setFotoKey(String fotoKey) {
+        this.fotoKey = fotoKey;
     }
 
     public Endereco getEndereco() {

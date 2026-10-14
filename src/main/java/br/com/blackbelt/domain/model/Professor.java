@@ -40,6 +40,8 @@ public class Professor {
     @NotNull(message = "Situação do professor é obrigatória.")
     private Boolean ativo;
 
+    private String fotoKey;
+
     @Valid
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "endereco_id")
@@ -118,6 +120,14 @@ public class Professor {
 
     public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
+    }
+
+    public String getFotoKey() {
+        return fotoKey;
+    }
+
+    public void setFotoKey(String fotoKey) {
+        this.fotoKey = fotoKey;
     }
 
     public Endereco getEndereco() {

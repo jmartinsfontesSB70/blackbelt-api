@@ -10,10 +10,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.net.URI;
@@ -25,8 +26,9 @@ public class AlunoController {
     private final AlunoService alunoService;
     private final AlunoMapper alunoMapper;
 
-    public AlunoController(AlunoService alunoService,
-                           AlunoMapper alunoMapper) {
+    public AlunoController(
+            AlunoService alunoService,
+            AlunoMapper alunoMapper) {
 
         this.alunoService = alunoService;
         this.alunoMapper = alunoMapper;
@@ -67,7 +69,8 @@ public class AlunoController {
 
     @PreAuthorize("hasAuthority('ALUNO_CRIAR')")
     @PostMapping
-    public ResponseEntity<AlunoResponse> cadastrar(@Valid @RequestBody AlunoRequest request) {
+    public ResponseEntity<AlunoResponse> cadastrar(
+            @Valid @RequestBody AlunoRequest request) {
 
         Aluno aluno = alunoMapper.toEntity(request);
 
@@ -106,13 +109,50 @@ public class AlunoController {
         return alunoMapper.toResponse(aluno);
     }
 
+    @PreAuthorize("hasAuthority('ALUNO_LISTAR')")
+    @GetMapping(
+            value = "/{id}/foto",
+            produces = MediaType.IMAGE_JPEG_VALUE
+    )
+    public ResponseEntity<byte[]> buscarFoto(
+            @PathVariable Long id) {
+
+        byte[] foto = alunoService.buscarFoto(id);
+
+        return ResponseEntity.ok(foto);
+    }
+
+    @PreAuthorize("hasAuthority('ALUNO_EDITAR')")
+    @PostMapping(
+            value = "/{id}/foto",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public AlunoResponse salvarFoto(
+            @PathVariable Long id,
+            @RequestParam("foto") MultipartFile foto) {
+
+        Aluno aluno = alunoService.salvarFoto(id, foto);
+
+        return alunoMapper.toResponse(aluno);
+    }
+
+    @PreAuthorize("hasAuthority('ALUNO_EDITAR')")
+    @DeleteMapping("/{id}/foto")
+    public ResponseEntity<Void> excluirFoto(
+            @PathVariable Long id) {
+
+        alunoService.excluirFoto(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @PreAuthorize("hasAuthority('ALUNO_EXCLUIR')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+    public ResponseEntity<Void> excluir(
+            @PathVariable Long id) {
 
         alunoService.excluir(id);
 
         return ResponseEntity.noContent().build();
     }
-
 }

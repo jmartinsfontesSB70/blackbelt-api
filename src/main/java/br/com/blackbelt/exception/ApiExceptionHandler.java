@@ -3,6 +3,7 @@ package br.com.blackbelt.exception;
 import br.com.blackbelt.api.exception.ErroResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -11,7 +12,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ApiExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErroResponse> tratarValidacao(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErroResponse> tratarValidacao(
+            MethodArgumentNotValidException ex) {
 
         String mensagem = ex.getBindingResult()
                 .getFieldError()
@@ -27,8 +29,23 @@ public class ApiExceptionHandler {
                 .body(erro);
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErroResponse> tratarJsonInvalido(
+            HttpMessageNotReadableException ex) {
+
+        ErroResponse erro = new ErroResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Os dados enviados possuem formato inválido."
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(erro);
+    }
+
     @ExceptionHandler(EntidadeNaoEncontradaException.class)
-    public ResponseEntity<ErroResponse> tratarEntidadeNaoEncontrada(EntidadeNaoEncontradaException  ex) {
+    public ResponseEntity<ErroResponse> tratarEntidadeNaoEncontrada(
+            EntidadeNaoEncontradaException ex) {
 
         ErroResponse erro = new ErroResponse(
                 HttpStatus.NOT_FOUND.value(),
@@ -41,15 +58,16 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(EntidadeConflitoException.class)
-    public ResponseEntity<ErroResponse> tratarConflito(EntidadeConflitoException ex) {
+    public ResponseEntity<ErroResponse> tratarConflito(
+            EntidadeConflitoException ex) {
 
         ErroResponse erro = new ErroResponse(
                 HttpStatus.CONFLICT.value(),
-                ex.getMessage() );
+                ex.getMessage()
+        );
 
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(erro);
     }
-
 }

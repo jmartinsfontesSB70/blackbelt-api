@@ -54,6 +54,7 @@ public class ProfessorMapper {
         response.setDataContratacao(professor.getDataContratacao());
         response.setValorHoraAula(professor.getValorHoraAula());
         response.setAtivo(professor.getAtivo());
+        response.setPossuiFoto(professor.getFotoKey() != null);
 
         if (professor.getEndereco() != null) {
 

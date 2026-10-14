@@ -5,22 +5,30 @@ import br.com.blackbelt.domain.repository.AlunoRepository;
 import br.com.blackbelt.domain.repository.MatriculaRepository;
 import br.com.blackbelt.exception.EntidadeConflitoException;
 import br.com.blackbelt.exception.EntidadeNaoEncontradaException;
+import br.com.blackbelt.service.storage.FotoStorage;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 
 @Service
 public class AlunoService {
 
     private final AlunoRepository alunoRepository;
     private final MatriculaRepository matriculaRepository;
+    private final FotoStorage fotoStorage;
 
     public AlunoService(
             AlunoRepository alunoRepository,
-            MatriculaRepository matriculaRepository) {
+            MatriculaRepository matriculaRepository,
+            FotoStorage fotoStorage) {
 
         this.alunoRepository = alunoRepository;
         this.matriculaRepository = matriculaRepository;
+        this.fotoStorage = fotoStorage;
     }
 
     public Page<Aluno> listar(
@@ -41,7 +49,8 @@ public class AlunoService {
 
         if (alunoRepository.existsByCpf(aluno.getCpf())) {
             throw new EntidadeConflitoException(
-                    "Já existe um aluno cadastrado com este CPF."); }
+                    "Já existe um aluno cadastrado com este CPF.");
+        }
 
         return alunoRepository.save(aluno);
     }
@@ -83,7 +92,95 @@ public class AlunoService {
             );
         }
 
+        if (aluno.getFotoKey() != null) {
+            try {
+                fotoStorage.excluir(aluno.getFotoKey());
+            } catch (IOException e) {
+                throw new IllegalStateException(
+                        "Não foi possível excluir a foto do aluno.",
+                        e
+                );
+            }
+        }
+
         alunoRepository.delete(aluno);
     }
 
+    public Aluno salvarFoto(Long id, MultipartFile arquivo) {
+
+        if (arquivo == null || arquivo.isEmpty()) {
+            throw new EntidadeConflitoException(
+                    "A foto é obrigatória."
+            );
+        }
+
+        Aluno aluno = buscarPorId(id);
+
+        try {
+
+            if (aluno.getFotoKey() != null) {
+                fotoStorage.excluir(aluno.getFotoKey());
+            }
+
+            String fotoKey = fotoStorage.salvar(
+                    "alunos",
+                    id,
+                    arquivo
+            );
+
+            aluno.setFotoKey(fotoKey);
+
+            return alunoRepository.save(aluno);
+
+        } catch (IOException e) {
+            throw new IllegalStateException(
+                    "Não foi possível salvar a foto do aluno.",
+                    e
+            );
+        }
+    }
+
+    public byte[] buscarFoto(Long id) {
+
+        Aluno aluno = buscarPorId(id);
+
+        if (aluno.getFotoKey() == null) {
+            throw new EntidadeNaoEncontradaException(
+                    "O aluno não possui foto."
+            );
+        }
+
+        try {
+            return fotoStorage.buscar(aluno.getFotoKey());
+        } catch (IOException e) {
+            throw new EntidadeNaoEncontradaException(
+                    "Foto do aluno não encontrada."
+            );
+        }
+    }
+
+    public void excluirFoto(Long id) {
+
+        Aluno aluno = buscarPorId(id);
+
+        if (aluno.getFotoKey() == null) {
+            throw new EntidadeNaoEncontradaException(
+                    "O aluno não possui foto."
+            );
+        }
+
+        try {
+            fotoStorage.excluir(aluno.getFotoKey());
+
+            aluno.setFotoKey(null);
+
+            alunoRepository.save(aluno);
+
+        } catch (IOException e) {
+            throw new IllegalStateException(
+                    "Não foi possível excluir a foto do aluno.",
+                    e
+            );
+        }
+    }
 }

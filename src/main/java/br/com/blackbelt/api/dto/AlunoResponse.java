@@ -11,6 +11,7 @@ public class AlunoResponse {
     private String telefone;
     private String email;
     private Boolean ativo;
+    private Boolean possuiFoto;
     private EnderecoResponse endereco;
 
     public Long getId() {
@@ -67,6 +68,14 @@ public class AlunoResponse {
 
     public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
+    }
+
+    public Boolean getPossuiFoto() {
+        return possuiFoto;
+    }
+
+    public void setPossuiFoto(Boolean possuiFoto) {
+        this.possuiFoto = possuiFoto;
     }
 
     public EnderecoResponse getEndereco() {

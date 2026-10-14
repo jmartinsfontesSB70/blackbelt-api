@@ -9,18 +9,26 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import br.com.blackbelt.service.storage.FotoStorage;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+
 @Service
 public class ProfessorService {
 
     private final ProfessorRepository professorRepository;
     private final TurmaRepository turmaRepository;
+    private final FotoStorage fotoStorage;
 
     public ProfessorService(
             ProfessorRepository professorRepository,
-            TurmaRepository turmaRepository) {
+            TurmaRepository turmaRepository,
+            FotoStorage fotoStorage) {
 
         this.professorRepository = professorRepository;
         this.turmaRepository = turmaRepository;
+        this.fotoStorage = fotoStorage;
     }
 
     public Page<Professor> listar(
@@ -86,6 +94,99 @@ public class ProfessorService {
                     "Não é possível excluir este professor porque existem turmas associadas. Torne o professor inativo para preservar o histórico.");
         }
 
+        if (professor.getFotoKey() != null) {
+
+            try {
+
+                fotoStorage.excluir(professor.getFotoKey());
+
+            } catch (IOException e) {
+
+                throw new IllegalStateException(
+                        "Não foi possível excluir a foto do professor.",
+                        e
+                );
+            }
+        }
+
         professorRepository.delete(professor);
+    }
+
+    public Professor salvarFoto(Long id, MultipartFile arquivo) {
+
+        Professor professor = buscarPorId(id);
+
+        try {
+
+            if (professor.getFotoKey() != null) {
+                fotoStorage.excluir(professor.getFotoKey());
+            }
+
+            String fotoKey = fotoStorage.salvar(
+                    "professores",
+                    id,
+                    arquivo
+            );
+
+            professor.setFotoKey(fotoKey);
+
+            return professorRepository.save(professor);
+
+        } catch (IOException e) {
+
+            throw new IllegalStateException(
+                    "Não foi possível salvar a foto do professor.",
+                    e
+            );
+        }
+    }
+
+    public byte[] buscarFoto(Long id) {
+
+        Professor professor = buscarPorId(id);
+
+        if (professor.getFotoKey() == null) {
+            throw new EntidadeNaoEncontradaException(
+                    "O professor não possui foto."
+            );
+        }
+
+        try {
+
+            return fotoStorage.buscar(professor.getFotoKey());
+
+        } catch (IOException e) {
+
+            throw new EntidadeNaoEncontradaException(
+                    "Foto do professor não encontrada."
+            );
+        }
+    }
+
+    public void excluirFoto(Long id) {
+
+        Professor professor = buscarPorId(id);
+
+        if (professor.getFotoKey() == null) {
+            throw new EntidadeNaoEncontradaException(
+                    "O professor não possui foto."
+            );
+        }
+
+        try {
+
+            fotoStorage.excluir(professor.getFotoKey());
+
+            professor.setFotoKey(null);
+
+            professorRepository.save(professor);
+
+        } catch (IOException e) {
+
+            throw new IllegalStateException(
+                    "Não foi possível excluir a foto do professor.",
+                    e
+            );
+        }
     }
 }

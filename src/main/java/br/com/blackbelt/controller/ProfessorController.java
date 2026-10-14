@@ -18,6 +18,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.net.URI;
 
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
+
 @RestController
 @RequestMapping("/api/v1/professores")
 public class ProfessorController {
@@ -109,6 +112,43 @@ public class ProfessorController {
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
 
         professorService.excluir(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasAuthority('PROFESSOR_LISTAR')")
+    @GetMapping(
+            value = "/{id}/foto",
+            produces = MediaType.IMAGE_JPEG_VALUE
+    )
+    public ResponseEntity<byte[]> buscarFoto(@PathVariable Long id) {
+
+        byte[] foto = professorService.buscarFoto(id);
+
+        return ResponseEntity.ok(foto);
+    }
+
+    @PreAuthorize("hasAuthority('PROFESSOR_EDITAR')")
+    @PostMapping(
+            value = "/{id}/foto",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ProfessorResponse salvarFoto(
+            @PathVariable Long id,
+            @RequestParam("foto") MultipartFile foto) {
+
+        Professor professor =
+                professorService.salvarFoto(id, foto);
+
+        return professorMapper.toResponse(professor);
+    }
+
+    @PreAuthorize("hasAuthority('PROFESSOR_EDITAR')")
+    @DeleteMapping("/{id}/foto")
+    public ResponseEntity<Void> excluirFoto(
+            @PathVariable Long id) {
+
+        professorService.excluirFoto(id);
 
         return ResponseEntity.noContent().build();
     }
