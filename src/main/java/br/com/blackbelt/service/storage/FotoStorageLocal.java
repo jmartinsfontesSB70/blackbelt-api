@@ -5,9 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 @Service
 public class FotoStorageLocal implements FotoStorage {
@@ -43,26 +45,56 @@ public class FotoStorageLocal implements FotoStorage {
         Files.createDirectories(diretorio);
 
         String nomeArquivo = "foto.jpg";
-
         Path destino = diretorio.resolve(nomeArquivo);
 
-        arquivo.transferTo(destino);
+        Path temporario = Files.createTempFile(
+                diretorio,
+                "foto-",
+                ".tmp"
+        );
+
+        try {
+            arquivo.transferTo(temporario);
+
+            try {
+                Files.move(
+                        temporario,
+                        destino,
+                        StandardCopyOption.REPLACE_EXISTING,
+                        StandardCopyOption.ATOMIC_MOVE
+                );
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(
+                        temporario,
+                        destino,
+                        StandardCopyOption.REPLACE_EXISTING
+                );
+            }
+        } finally {
+            Files.deleteIfExists(temporario);
+        }
 
         return pasta + "/" + id + "/" + nomeArquivo;
     }
 
     @Override
     public byte[] buscar(String fotoKey) throws IOException {
+        Path arquivo = diretorioBase.resolve(fotoKey).normalize();
 
-        Path arquivo = diretorioBase.resolve(fotoKey);
+        if (!arquivo.startsWith(diretorioBase.normalize())) {
+            throw new IOException("Caminho de imagem inválido.");
+        }
 
         return Files.readAllBytes(arquivo);
     }
 
     @Override
     public void excluir(String fotoKey) throws IOException {
+        Path arquivo = diretorioBase.resolve(fotoKey).normalize();
 
-        Path arquivo = diretorioBase.resolve(fotoKey);
+        if (!arquivo.startsWith(diretorioBase.normalize())) {
+            throw new IOException("Caminho de imagem inválido.");
+        }
 
         Files.deleteIfExists(arquivo);
     }

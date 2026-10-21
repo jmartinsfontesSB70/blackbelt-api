@@ -47,7 +47,9 @@ public class LicencaFilter extends OncePerRequestFilter {
                 || caminho.equals("/api/v1/academia/status-instalacao")
                 || caminho.equals("/api/v1/academia/instalacao")
                 || caminho.equals("/api/v1/licenca/ativar")
-                || caminho.equals("/api/v1/licenca/tokens");
+                || caminho.equals("/api/v1/licenca/tokens")
+                || caminho.equals("/api/v1/licenca/status");
+
     }
 
     @Override

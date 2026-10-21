@@ -6,6 +6,7 @@ import br.com.blackbelt.api.dto.LicencaResponse;
 import br.com.blackbelt.api.dto.LicencaTokenGeradoResponse;
 import br.com.blackbelt.domain.model.Licenca;
 import br.com.blackbelt.service.LicencaService;
+import br.com.blackbelt.api.dto.LicencaStatusResponse;
 
 import jakarta.validation.Valid;
 
@@ -90,5 +91,14 @@ public class LicencaController {
                     "Não autorizado a gerar tokens."
             );
         }
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<LicencaStatusResponse> consultarStatus() {
+
+        LicencaStatusResponse resposta =
+                licencaService.consultarStatus();
+
+        return ResponseEntity.ok(resposta);
     }
 }

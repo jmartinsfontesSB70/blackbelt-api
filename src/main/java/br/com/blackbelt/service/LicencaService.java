@@ -1,5 +1,10 @@
 package br.com.blackbelt.service;
 
+import br.com.blackbelt.api.dto.LicencaStatusResponse;
+import br.com.blackbelt.domain.model.Academia;
+import br.com.blackbelt.domain.repository.AcademiaRepository;
+import java.time.temporal.ChronoUnit;
+
 import br.com.blackbelt.api.dto.LicencaTokenGeradoResponse;
 import br.com.blackbelt.domain.model.Licenca;
 import br.com.blackbelt.domain.repository.LicencaRepository;
@@ -24,8 +29,12 @@ public class LicencaService {
 
     private final LicencaRepository licencaRepository;
 
-    public LicencaService(LicencaRepository licencaRepository) {
+    private final AcademiaRepository academiaRepository;
+
+    public LicencaService(LicencaRepository licencaRepository,
+                          AcademiaRepository academiaRepository) {
         this.licencaRepository = licencaRepository;
+        this.academiaRepository = academiaRepository;
     }
 
     @Transactional
@@ -151,5 +160,51 @@ public class LicencaService {
                     e
             );
         }
+    }
+
+    @Transactional(readOnly = true)
+    public LicencaStatusResponse consultarStatus() {
+
+        LocalDate hoje = LocalDate.now();
+
+        var licencaAtiva = licencaRepository
+                .findFirstByDataInicioLessThanEqualAndDataExpiracaoAfter(
+                        hoje,
+                        hoje
+                );
+
+        if (licencaAtiva.isPresent()) {
+            LocalDate expiracao =
+                    licencaAtiva.get().getDataExpiracao();
+
+            return new LicencaStatusResponse(
+                    "LICENCIADA",
+                    expiracao,
+                    ChronoUnit.DAYS.between(hoje, expiracao)
+            );
+        }
+
+        var academia = academiaRepository.findAll()
+                .stream()
+                .findFirst();
+
+        if (academia.isPresent()) {
+            Academia cadastro = academia.get();
+            LocalDate expiracao = cadastro.getDataExpiracao();
+
+            if (hoje.isBefore(expiracao)) {
+                return new LicencaStatusResponse(
+                        "AVALIACAO",
+                        expiracao,
+                        ChronoUnit.DAYS.between(hoje, expiracao)
+                );
+            }
+        }
+
+        return new LicencaStatusResponse(
+                "EXPIRADA",
+                null,
+                0
+        );
     }
 }

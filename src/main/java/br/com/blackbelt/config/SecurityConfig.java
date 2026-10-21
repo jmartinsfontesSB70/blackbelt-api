@@ -80,6 +80,11 @@ public class SecurityConfig {
                                 "/api/v1/licenca/tokens"
                         ).permitAll()
 
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/licenca/status"
+                        ).permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

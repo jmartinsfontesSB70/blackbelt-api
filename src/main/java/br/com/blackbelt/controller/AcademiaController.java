@@ -10,6 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
+import org.springframework.http.HttpHeaders;
+import java.io.IOException;
+
 import java.util.Map;
 
 @RestController
@@ -71,6 +76,7 @@ public class AcademiaController {
      * Atualiza os dados cadastrais da academia.
      * Não altera as datas da avaliação nem o logotipo.
      */
+    @PreAuthorize("hasAuthority('ACADEMIA_EDITAR')")
     @PutMapping
     public ResponseEntity<AcademiaResponse> atualizar(
             @Valid @RequestBody AcademiaRequest request) {
@@ -79,4 +85,36 @@ public class AcademiaController {
                 academiaService.atualizar(request)
         );
     }
+
+    @PreAuthorize("hasAuthority('ACADEMIA_EDITAR')")
+    @PutMapping(
+            value = "/logo",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<AcademiaResponse> atualizarLogo(
+            @RequestPart("logo") MultipartFile logo) {
+
+        return ResponseEntity.ok(
+                academiaService.atualizarLogo(logo)
+        );
+    }
+
+    @GetMapping("/logo")
+    public ResponseEntity<byte[]> buscarLogo() {
+        AcademiaResponse academia = academiaService.buscar();
+
+        // O método buscar() retorna os dados cadastrais.
+        // Os bytes da logo são obtidos pelo método específico abaixo.
+        byte[] imagem = academiaService.buscarLogo();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(
+                org.springframework.http.MediaType.IMAGE_JPEG
+        );
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(imagem);
+    }
+
 }

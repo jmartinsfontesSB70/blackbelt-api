@@ -94,6 +94,54 @@ public class AcademiaService {
     }
 
     @Transactional
+    public AcademiaResponse atualizarLogo(MultipartFile logo) {
+
+        if (logo == null || logo.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Selecione uma imagem para a logo da academia."
+            );
+        }
+
+        String tipo = logo.getContentType();
+
+        if (tipo == null ||
+                !(tipo.equalsIgnoreCase("image/jpeg")
+                        || tipo.equalsIgnoreCase("image/png"))) {
+            throw new IllegalArgumentException(
+                    "A logo deve estar no formato JPG ou PNG."
+            );
+        }
+
+        Academia academia = academiaRepository.findAll()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new EntidadeNaoEncontradaException(
+                        "Nenhuma academia cadastrada."
+                ));
+
+        try {
+            String logoKey = fotoStorage.salvar(
+                    "academias",
+                    academia.getId(),
+                    logo
+            );
+
+            academia.setLogoKey(logoKey);
+
+            Academia academiaAtualizada =
+                    academiaRepository.save(academia);
+
+            return academiaMapper.toResponse(academiaAtualizada);
+
+        } catch (IOException e) {
+            throw new IllegalStateException(
+                    "Não foi possível atualizar a logo da academia.",
+                    e
+            );
+        }
+    }
+
+    @Transactional
     public AcademiaResponse atualizar(AcademiaRequest request) {
 
         Academia academia = academiaRepository.findAll()
@@ -137,4 +185,29 @@ public class AcademiaService {
                 )
                 .orElse(false);
     }
+
+    @Transactional(readOnly = true)
+    public byte[] buscarLogo() {
+        Academia academia = academiaRepository.findAll()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new EntidadeNaoEncontradaException(
+                        "Nenhuma academia cadastrada."
+                ));
+
+        if (academia.getLogoKey() == null || academia.getLogoKey().isBlank()) {
+            throw new EntidadeNaoEncontradaException(
+                    "A academia ainda não possui uma logo cadastrada."
+            );
+        }
+
+        try {
+            return fotoStorage.buscar(academia.getLogoKey());
+        } catch (IOException e) {
+            throw new IllegalStateException(
+                    "Não foi possível carregar a logo da academia.", e
+            );
+        }
+    }
+
 }
