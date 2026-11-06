@@ -6,8 +6,9 @@ public class EnderecoResponse {
     private String rua;
     private String numero;
     private String bairro;
+    private Long cidadeId;
     private String cidade;
-    private String estado;
+    private String uf;
     private String cep;
     private String pontoReferencia;
 
@@ -43,6 +44,14 @@ public class EnderecoResponse {
         this.bairro = bairro;
     }
 
+    public Long getCidadeId() {
+        return cidadeId;
+    }
+
+    public void setCidadeId(Long cidadeId) {
+        this.cidadeId = cidadeId;
+    }
+
     public String getCidade() {
         return cidade;
     }
@@ -51,12 +60,12 @@ public class EnderecoResponse {
         this.cidade = cidade;
     }
 
-    public String getEstado() {
-        return estado;
+    public String getUf() {
+        return uf;
     }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public void setUf(String uf) {
+        this.uf = uf;
     }
 
     public String getCep() {

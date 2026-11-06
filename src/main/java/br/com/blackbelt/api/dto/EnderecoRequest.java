@@ -5,8 +5,7 @@ public class EnderecoRequest {
     private String rua;
     private String numero;
     private String bairro;
-    private String cidade;
-    private String estado;
+    private Long cidadeId;
     private String cep;
     private String pontoReferencia;
 
@@ -34,20 +33,12 @@ public class EnderecoRequest {
         this.bairro = bairro;
     }
 
-    public String getCidade() {
-        return cidade;
+    public Long getCidadeId() {
+        return cidadeId;
     }
 
-    public void setCidade(String cidade) {
-        this.cidade = cidade;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public void setCidadeId(Long cidadeId) {
+        this.cidadeId = cidadeId;
     }
 
     public String getCep() {

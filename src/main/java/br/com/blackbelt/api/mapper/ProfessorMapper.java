@@ -3,12 +3,21 @@ package br.com.blackbelt.api.mapper;
 import br.com.blackbelt.api.dto.EnderecoResponse;
 import br.com.blackbelt.api.dto.ProfessorRequest;
 import br.com.blackbelt.api.dto.ProfessorResponse;
+import br.com.blackbelt.domain.model.Cidade;
 import br.com.blackbelt.domain.model.Endereco;
 import br.com.blackbelt.domain.model.Professor;
+import br.com.blackbelt.domain.repository.CidadeRepository;
+import br.com.blackbelt.exception.EntidadeNaoEncontradaException;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ProfessorMapper {
+
+    private final CidadeRepository cidadeRepository;
+
+    public ProfessorMapper(CidadeRepository cidadeRepository) {
+        this.cidadeRepository = cidadeRepository;
+    }
 
     public Professor toEntity(ProfessorRequest request) {
 
@@ -30,10 +39,28 @@ public class ProfessorMapper {
             endereco.setRua(request.getEndereco().getRua());
             endereco.setNumero(request.getEndereco().getNumero());
             endereco.setBairro(request.getEndereco().getBairro());
-            endereco.setCidade(request.getEndereco().getCidade());
-            endereco.setEstado(request.getEndereco().getEstado());
             endereco.setCep(request.getEndereco().getCep());
-            endereco.setPontoReferencia(request.getEndereco().getPontoReferencia());
+            endereco.setPontoReferencia(
+                    request.getEndereco().getPontoReferencia()
+            );
+
+            Long cidadeId = request.getEndereco().getCidadeId();
+
+            if (cidadeId == null) {
+                throw new IllegalArgumentException(
+                        "Cidade é obrigatória."
+                );
+            }
+
+            Cidade cidade = cidadeRepository.findById(cidadeId)
+                    .orElseThrow(() ->
+                            new EntidadeNaoEncontradaException(
+                                    "Cidade de código " + cidadeId
+                                            + " não encontrada."
+                            )
+                    );
+
+            endereco.setCidade(cidade);
 
             professor.setEndereco(endereco);
         }
@@ -58,18 +85,29 @@ public class ProfessorMapper {
 
         if (professor.getEndereco() != null) {
 
-            EnderecoResponse endereco = new EnderecoResponse();
+            Endereco endereco = professor.getEndereco();
 
-            endereco.setId(professor.getEndereco().getId());
-            endereco.setRua(professor.getEndereco().getRua());
-            endereco.setNumero(professor.getEndereco().getNumero());
-            endereco.setBairro(professor.getEndereco().getBairro());
-            endereco.setCidade(professor.getEndereco().getCidade());
-            endereco.setEstado(professor.getEndereco().getEstado());
-            endereco.setCep(professor.getEndereco().getCep());
-            endereco.setPontoReferencia(professor.getEndereco().getPontoReferencia());
+            EnderecoResponse enderecoResponse = new EnderecoResponse();
 
-            response.setEndereco(endereco);
+            enderecoResponse.setId(endereco.getId());
+            enderecoResponse.setRua(endereco.getRua());
+            enderecoResponse.setNumero(endereco.getNumero());
+            enderecoResponse.setBairro(endereco.getBairro());
+            enderecoResponse.setCep(endereco.getCep());
+            enderecoResponse.setPontoReferencia(
+                    endereco.getPontoReferencia()
+            );
+
+            if (endereco.getCidade() != null) {
+
+                Cidade cidade = endereco.getCidade();
+
+                enderecoResponse.setCidadeId(cidade.getId());
+                enderecoResponse.setCidade(cidade.getNome());
+                enderecoResponse.setUf(cidade.getUf().getSigla());
+            }
+
+            response.setEndereco(enderecoResponse);
         }
 
         return response;
