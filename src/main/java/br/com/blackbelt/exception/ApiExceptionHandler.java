@@ -70,4 +70,32 @@ public class ApiExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(erro);
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErroResponse> tratarArgumentoInvalido(
+            IllegalArgumentException ex) {
+
+        ErroResponse erro = new ErroResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(erro);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErroResponse> tratarFalhaServicoExterno(
+            IllegalStateException ex) {
+
+        ErroResponse erro = new ErroResponse(
+                HttpStatus.BAD_GATEWAY.value(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_GATEWAY)
+                .body(erro);
+    }
 }

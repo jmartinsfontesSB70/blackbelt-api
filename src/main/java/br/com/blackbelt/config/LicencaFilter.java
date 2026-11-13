@@ -66,30 +66,33 @@ public class LicencaFilter extends OncePerRequestFilter {
                 autenticacao instanceof JwtAuthenticationToken
                         && autenticacao.isAuthenticated();
 
-        boolean avaliacaoValida =
-                academiaService.avaliacaoValida();
-
-        boolean licencaValida =
-                licencaService.licencaValida();
-
+        // Sem usuário autenticado ou sem academia cadastrada,
+        // não existe motivo para bloquear por licença.
         if (usuarioAutenticado
-                && !avaliacaoValida
-                && !licencaValida) {
+                && academiaService.existeAcademia()) {
 
-            response.setStatus(423);
-            response.setContentType(
-                    MediaType.APPLICATION_JSON_VALUE
-            );
-            response.setCharacterEncoding("UTF-8");
+            boolean avaliacaoValida =
+                    academiaService.avaliacaoValida();
 
-            response.getWriter().write("""
+            boolean licencaValida =
+                    licencaService.licencaValida();
+
+            if (!avaliacaoValida && !licencaValida) {
+
+                response.setStatus(423);
+                response.setContentType(
+                        MediaType.APPLICATION_JSON_VALUE);
+                response.setCharacterEncoding("UTF-8");
+
+                response.getWriter().write("""
                     {
                       "codigo": "LICENCA_EXPIRADA",
                       "mensagem": "O período de avaliação expirou e não existe uma licença comercial válida. Ative sua licença para continuar utilizando o BlackBelt."
                     }
                     """);
 
-            return;
+                return;
+            }
         }
 
         filterChain.doFilter(request, response);
